@@ -23,6 +23,7 @@ type Action =
   | { type: 'INSERT_SONG_INTO_SETLIST'; setlistId: string; songId: string; index: number }
   | { type: 'REMOVE_SONG_FROM_SETLIST'; setlistId: string; index: number }
   | { type: 'REORDER_SETLIST'; setlistId: string; songIds: string[] }
+  | { type: 'REPLACE_SETLIST_SONGS'; setlistId: string; songIds: string[] }
   | { type: 'SET_TARGET'; setlistId: string; targetSeconds: number | null }
   | { type: 'SET_GAP'; setlistId: string; gapSeconds: number }
 
@@ -127,6 +128,7 @@ function reducer(state: AppState, action: Action): AppState {
       }
 
     case 'REORDER_SETLIST':
+    case 'REPLACE_SETLIST_SONGS':
       return {
         ...state,
         setlists: mapSetlist(state, action.setlistId, (s) => ({

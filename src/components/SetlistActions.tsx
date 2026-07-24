@@ -5,6 +5,7 @@ import { buildShareUrl } from '../lib/share'
 import { toPlainText } from '../lib/plaintext'
 import { Button } from './ui/Button'
 import { Modal } from './ui/Modal'
+import { SuggestModal } from './SuggestModal'
 
 interface Props {
   songs: Song[]
@@ -12,14 +13,24 @@ interface Props {
 }
 
 export function SetlistActions({ songs, onEnterStage }: Props) {
-  const { state, activeSetlist } = useApp()
+  const { state, dispatch, activeSetlist } = useApp()
   const [shareOpen, setShareOpen] = useState(false)
+  const [suggestOpen, setSuggestOpen] = useState(false)
   const [copied, setCopied] = useState<'url' | 'text' | null>(null)
 
   if (!activeSetlist) return null
 
   const disabled = songs.length === 0
   const shareUrl = buildShareUrl(activeSetlist, state.songs)
+
+  // suggest depends on the LIBRARY + a target, not on the current set being non-empty
+  const canSuggest = state.songs.length > 0 && activeSetlist.targetSeconds != null
+  const suggestTitle =
+    state.songs.length === 0
+      ? 'add songs to your library first'
+      : activeSetlist.targetSeconds == null
+        ? 'set a target slot to get a suggestion'
+        : 'suggest a set that fits your slot'
 
   async function copy(value: string, which: 'url' | 'text') {
     try {
@@ -53,6 +64,15 @@ export function SetlistActions({ songs, onEnterStage }: Props) {
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
+        <Button
+          variant="outline"
+          className="border-accent/50 text-accent-ink hover:border-accent hover:bg-accent/[0.04]"
+          onClick={() => setSuggestOpen(true)}
+          disabled={!canSuggest}
+          title={suggestTitle}
+        >
+          <SparkIcon /> suggest a set
+        </Button>
         <Button variant="primary" onClick={onEnterStage} disabled={disabled}>
           <StageIcon /> stage mode
         </Button>
@@ -82,7 +102,39 @@ export function SetlistActions({ songs, onEnterStage }: Props) {
           tip: open it in a new tab to preview what the band will see.
         </p>
       </Modal>
+
+      {activeSetlist.targetSeconds != null && (
+        <SuggestModal
+          open={suggestOpen}
+          onClose={() => setSuggestOpen(false)}
+          library={state.songs}
+          targetSeconds={activeSetlist.targetSeconds}
+          gapSeconds={activeSetlist.gapSeconds}
+          currentCount={songs.length}
+          onUse={(songIds) => {
+            dispatch({
+              type: 'REPLACE_SETLIST_SONGS',
+              setlistId: activeSetlist.id,
+              songIds,
+            })
+            setSuggestOpen(false)
+          }}
+        />
+      )}
     </>
+  )
+}
+
+function SparkIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path
+        d="M8 1.5l1.4 3.9 3.9 1.4-3.9 1.4L8 12.1 6.6 8.2 2.7 6.8l3.9-1.4L8 1.5z"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }
 
