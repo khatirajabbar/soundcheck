@@ -14,6 +14,7 @@ export function SongLibrary() {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Tag | null>(null)
   const [adding, setAdding] = useState(false)
+  const [addTitle, setAddTitle] = useState('')
   const [editing, setEditing] = useState<Song | null>(null)
 
   const songs = useMemo(() => {
@@ -29,6 +30,18 @@ export function SongLibrary() {
     })
   }, [state.songs, query, filter])
 
+  // offer a one-tap "add this" when the typed name isn't already a song title
+  const trimmedQuery = query.trim()
+  const hasExactTitle = state.songs.some(
+    (s) => s.title.toLowerCase() === trimmedQuery.toLowerCase()
+  )
+  const showQuickAdd = trimmedQuery.length > 0 && !hasExactTitle
+
+  function openAdd(title: string) {
+    setAddTitle(title)
+    setAdding(true)
+  }
+
   function addToSetlist(songId: string) {
     if (!activeSetlist) return
     dispatch({ type: 'ADD_SONG_TO_SETLIST', setlistId: activeSetlist.id, songId })
@@ -41,7 +54,7 @@ export function SongLibrary() {
           <h2 className="text-sm font-semibold lowercase tracking-wide">library</h2>
           <span className="tnum text-xs text-ink-30">{state.songs.length}</span>
         </div>
-        <Button size="sm" variant="primary" onClick={() => setAdding(true)}>
+        <Button size="sm" variant="primary" onClick={() => openAdd('')}>
           <PlusIcon /> add song
         </Button>
       </header>
@@ -63,6 +76,18 @@ export function SongLibrary() {
             />
           ))}
         </div>
+
+        {showQuickAdd && (
+          <button
+            onClick={() => openAdd(trimmedQuery)}
+            className="flex w-full items-center gap-2 rounded-lg border border-dashed border-accent/50 bg-accent/[0.04] px-3 py-2 text-left text-sm text-accent-ink transition hover:bg-accent/10"
+          >
+            <PlusIcon />
+            <span className="min-w-0 truncate">
+              add “<span className="font-medium">{trimmedQuery}</span>” as a new song
+            </span>
+          </button>
+        )}
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -89,6 +114,7 @@ export function SongLibrary() {
 
       <Modal open={adding} onClose={() => setAdding(false)} title="new song">
         <SongForm
+          initialTitle={addTitle}
           onCancel={() => setAdding(false)}
           onSubmit={(data) => {
             dispatch({ type: 'ADD_SONG', song: data })

@@ -102,7 +102,7 @@ export function ShareView({ payload }: Props) {
         </ol>
 
         <div className="mt-6">
-          <SetAnalysis songs={songs} />
+          <SetAnalysis songs={songs} gapSeconds={payload.gapSeconds} />
         </div>
 
         <Footer />

@@ -6,12 +6,14 @@ import { TagPill } from './ui/TagPill'
 
 interface Props {
   initial?: Song
+  /** prefill the title when adding a new song (e.g. from the library search) */
+  initialTitle?: string
   onSubmit: (data: Omit<Song, 'id'>) => void
   onCancel: () => void
 }
 
-export function SongForm({ initial, onSubmit, onCancel }: Props) {
-  const [title, setTitle] = useState(initial?.title ?? '')
+export function SongForm({ initial, initialTitle, onSubmit, onCancel }: Props) {
+  const [title, setTitle] = useState(initial?.title ?? initialTitle ?? '')
   const [durationText, setDurationText] = useState(
     initial ? formatDuration(initial.duration) : ''
   )

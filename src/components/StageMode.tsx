@@ -80,14 +80,15 @@ export function StageMode({ name, songs, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-[60] select-none bg-black text-white">
-      {/* top bar */}
-      <div className="flex items-center justify-between px-5 pt-[env(safe-area-inset-top)]">
+      {/* top bar — sits above the tap zones; only the button catches taps so the
+          rest of the strip still navigates */}
+      <div className="pointer-events-none relative z-20 flex items-center justify-between px-5 pt-[env(safe-area-inset-top)]">
         <div className="py-4">
           <p className="truncate text-xs lowercase tracking-widest text-white/40">{name}</p>
         </div>
         <button
           onClick={onClose}
-          className="my-2 rounded-lg border border-white/15 px-3 py-1.5 text-xs lowercase tracking-wide text-white/70 transition hover:bg-white/10"
+          className="pointer-events-auto my-2 rounded-lg border border-white/15 px-3 py-1.5 text-xs lowercase tracking-wide text-white/70 transition hover:bg-white/10"
         >
           exit
         </button>

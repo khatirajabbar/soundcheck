@@ -107,7 +107,7 @@ export function SetBoard() {
           <SetlistBuilder />
         </div>
         <div className="order-3 lg:col-span-3">
-          <SetAnalysis songs={songs} />
+          <SetAnalysis songs={songs} gapSeconds={activeSetlist?.gapSeconds ?? 0} />
         </div>
       </div>
 

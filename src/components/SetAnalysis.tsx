@@ -1,13 +1,17 @@
+import { useState } from 'react'
 import type { Song } from '../types'
 import { analyzeSet, SLOW_BPM, SLOW_RUN_LIMIT } from '../lib/analysis'
 import { TempoChart } from './TempoChart'
 
 interface Props {
   songs: Song[]
+  /** banter gap between songs, in seconds — enables the "show gaps" toggle */
+  gapSeconds?: number
 }
 
-export function SetAnalysis({ songs }: Props) {
+export function SetAnalysis({ songs, gapSeconds = 0 }: Props) {
   const a = analyzeSet(songs)
+  const [showGaps, setShowGaps] = useState(true)
 
   if (a.count === 0) {
     return (
@@ -29,8 +33,38 @@ export function SetAnalysis({ songs }: Props) {
       </div>
 
       <div>
-        <p className="label">tempo flow</p>
-        <TempoChart points={a.tempoPoints} min={a.minBpm ?? 0} max={a.maxBpm ?? 0} />
+        <div className="mb-1 flex items-center justify-between gap-2">
+          <p className="label mb-0">tempo flow</p>
+          {gapSeconds > 0 && (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={showGaps}
+              onClick={() => setShowGaps((v) => !v)}
+              className="flex items-center gap-1.5 text-[11px] lowercase tracking-wide text-ink-50 transition hover:text-ink-70"
+            >
+              <span
+                className={`relative h-4 w-7 rounded-full transition-colors ${
+                  showGaps ? 'bg-accent' : 'bg-line'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow transition-all ${
+                    showGaps ? 'left-3.5' : 'left-0.5'
+                  }`}
+                />
+              </span>
+              show gaps
+            </button>
+          )}
+        </div>
+        <TempoChart
+          points={a.tempoPoints}
+          min={a.minBpm ?? 0}
+          max={a.maxBpm ?? 0}
+          gapSeconds={gapSeconds}
+          showGaps={showGaps}
+        />
       </div>
 
       {a.slowRun && (
