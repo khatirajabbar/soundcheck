@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    /* respect iOS safe areas so the fixed runtime bar / stage mode aren't clipped */
+    padding: 0;
+    margin: 0;
+  }
+
+  /* number-ish fields read better in mono */
+  input,
+  button,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  ::selection {
+    @apply bg-accent/20;
+  }
+}
+
+@layer components {
+  .field {
+    @apply w-full rounded-lg border border-line bg-white px-3 py-2 text-sm
+      outline-none transition placeholder:text-ink-30
+      focus:border-accent focus:ring-2 focus:ring-accent/20;
+  }
+
+  .label {
+    @apply mb-1 block text-xs font-medium lowercase tracking-wide text-ink-50;
+  }
+
+  .card {
+    @apply rounded-xl2 border border-line bg-white;
+  }
+
+  /* tabular figures for anything showing durations / bpm */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ---- print sheet: big type for taping to the stage floor ---- */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: #fff;
+  }
+  @page {
+    margin: 16mm;
+  }
+}
+
+.print-only {
+  display: none;
+}
+
+/* hide scrollbars inside horizontal chart scrollers but keep them scrollable */
+.scroll-x {
+  scrollbar-width: thin;
+}
